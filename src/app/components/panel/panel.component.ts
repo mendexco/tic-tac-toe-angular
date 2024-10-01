@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { SquareComponent } from '@components/square/square.component';
-import { CoreService, type SelectionType } from '@services/core.service';
+import { CoreService, type SelectionType } from '@services/core/core.service';
 
 type SquareType = {
   id: number;

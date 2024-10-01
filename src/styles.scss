@@ -1,1 +1,35 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  @media (prefers-color-scheme: light) {
+    --primary: #ed145b;
+    --background: #3a0013;
+    --background-darker: #0e0005;
+    --background-lighter: #440018;
+    --background-lighter-click: #50001c;
+    --font-color-primary: #ffd4e3;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --primary: #ed145b;
+    --background: #3a0013;
+    --background-darker: #0e0005;
+    --background-lighter: #440018;
+    --background-lighter-click: #50001c;
+    --font-color-primary: #ffd4e3;
+  }
+
+  background-color: var(--background-darker);
+
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  color: var(--font-color-primary);
+  font-weight: 700;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  body {
+    margin: 0;
+    padding: 0 80px;
+  }
+}
