@@ -1,6 +1,11 @@
 import { AsyncPipe, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CoreService } from '@services/core/core.service';
+import {
+  CONSTANTS_TOKEN,
+  type IConstants,
+  type Player,
+} from '@utils/constants';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -11,7 +16,7 @@ import { Subscription } from 'rxjs';
       <div>
         <p
           [ngClass]="{
-            'player-turn': this.coreService.currentPlayer === 'X'
+            'player-turn': checkPlayerTurn(this.CONSTANTS.players.X)
           }"
         >
           PlayerX
@@ -23,7 +28,7 @@ import { Subscription } from 'rxjs';
         </p>
         <p
           [ngClass]="{
-            'player-turn': this.coreService.currentPlayer === 'O'
+            'player-turn': checkPlayerTurn(this.CONSTANTS.players.O)
           }"
         >
           PlayerO
@@ -48,7 +53,10 @@ export class MatchManagerComponent implements OnInit, OnDestroy {
 
   subscription!: Subscription;
 
-  constructor(protected coreService: CoreService) {}
+  constructor(
+    protected coreService: CoreService,
+    @Inject(CONSTANTS_TOKEN) protected CONSTANTS: IConstants
+  ) {}
 
   ngOnInit() {
     this.subscription = this.coreService.selections$.subscribe((selections) => {
@@ -61,6 +69,10 @@ export class MatchManagerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  checkPlayerTurn(player: Player) {
+    return this.coreService.currentPlayer === player;
   }
 
   startMatch() {

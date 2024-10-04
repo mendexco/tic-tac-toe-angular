@@ -7,11 +7,15 @@ type SocialMediaType = {
   label: string;
 };
 
+export type Player = 'X' | 'O';
+
 export interface IConstants {
+  players: { [key in Player]: Player };
   socialMedias: { [key in 'linkedIn' | 'github']: SocialMediaType };
 }
 
 export const CONSTANTS: IConstants = {
+  players: { X: 'X', O: 'O' },
   socialMedias: {
     linkedIn: {
       href: 'https://www.linkedin.com/in/vitor-mendesco',
