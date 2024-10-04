@@ -28,4 +28,7 @@ export const CONSTANTS: IConstants = {
   },
 };
 
-export const CONSTANTS_TOKEN = new InjectionToken<IConstants>('CONSTANTS');
+export const CONSTANTS_TOKEN = new InjectionToken<IConstants>('CONSTANTS', {
+  providedIn: 'root',
+  factory: () => CONSTANTS,
+});

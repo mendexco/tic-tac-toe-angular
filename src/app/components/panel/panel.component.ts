@@ -1,31 +1,22 @@
+import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { SquareComponent } from '@components/square/square.component';
-import { CoreService, type SelectionType } from '@services/core/core.service';
-
-type SquareType = {
-  id: number;
-  value: SelectionType;
-};
+import { CoreService } from '@services/core/core.service';
 
 @Component({
   selector: 'app-panel',
   standalone: true,
   template: `
-    @for (square of squares; track square.id) {
-    <app-square [value]="square.value" />
+    @for (square of this.coreServices.selections$ | async; track square.index) {
+    <app-square
+      (mark)="this.coreServices.markSquare(square.index)"
+      [value]="square.value"
+    />
     }
   `,
   styleUrl: './panel.component.scss',
-  providers: [CoreService],
-  imports: [SquareComponent],
+  imports: [AsyncPipe, SquareComponent],
 })
 export class PanelComponent {
-  squares: SquareType[] = Array(9)
-    .fill(null)
-    .map((_, index) => ({
-      id: index + 1,
-      value: null,
-    }));
-
-  constructor(private coreServices: CoreService) {}
+  constructor(protected coreServices: CoreService) {}
 }

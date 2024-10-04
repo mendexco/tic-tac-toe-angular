@@ -19,6 +19,10 @@
     &:active {
       background-color: var(--background-lighter-click);
     }
+    &.disabled {
+      background-color: var(--background-lighter);
+      cursor: not-allowed;
+    }
 
     p {
       color: var(--font-color-primary);

@@ -5,12 +5,25 @@
     flex-direction: column;
     gap: 1rem;
     margin-top: 2rem;
+    user-select: none;
 
-    p {
-      font-weight: 400;
+    div {
+      display: flex;
+      gap: 10px;
 
-      span {
-        font-weight: 800;
+      p {
+        font-weight: 400;
+        transition: text-shadow, font-size 0.3s;
+
+        &.player-turn {
+          font-size: 1.05rem;
+          font-weight: 600;
+          text-shadow: 0px 0px 8px var(--font-color-primary);
+        }
+
+        span {
+          font-weight: 800;
+        }
       }
     }
 
@@ -31,6 +44,12 @@
       }
       &:active {
         background-color: var(--background-lighter-click);
+      }
+      &.disabled {
+        background-color: var(--background-darker);
+        border-color: var(--background-lighter);
+        color: var(--background-lighter);
+        pointer-events: none;
       }
     }
   }
