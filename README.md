@@ -20,8 +20,8 @@ View now at **https://mdxco-tic-tac-toe-angular.vercel.app**
 
 >> 1. You will need to have **Node** and **NPM**
 >> 2. If you have Angular CLI, run at the terminal: `ng serve` or `npm start`
->> 3. Navigate to `http://localhost:4200/`
->><br />
+>> 3. Navigate to `http://localhost:4200/`<br />
+![test](https://github.com/user-attachments/assets/1fd2c608-dc6e-4536-acad-424878608649)
 >#
 
 <br />
