@@ -1,6 +1,6 @@
 import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { CoreService } from '@services/core/core.service';
+import { CoreService, type WinnerData } from '@services/core/core.service';
 import {
   CONSTANTS_TOKEN,
   Nullable,
@@ -17,19 +17,19 @@ import { Subscription } from 'rxjs';
       <div>
         <p
           [ngClass]="{
-            'player-turn': checkPlayerTurn(this.CONSTANTS.players.X)
+            highlighted: shouldHighlightPlayer(this.CONSTANTS.players.X)
           }"
         >
           PlayerX
         </p>
-        <p>
-          <span>{{ playerXWinsCounter }}</span>
+        <p [ngClass]="{ highlighted: shouldHighlightScore() }">
+          <span>{{ playerWins.X }}</span>
           vs
-          <span>{{ playerOWinsCounter }}</span>
+          <span>{{ playerWins.O }}</span>
         </p>
         <p
           [ngClass]="{
-            'player-turn': checkPlayerTurn(this.CONSTANTS.players.O)
+            highlighted: shouldHighlightPlayer(this.CONSTANTS.players.O)
           }"
         >
           PlayerO
@@ -48,12 +48,15 @@ import { Subscription } from 'rxjs';
   imports: [NgClass, AsyncPipe],
 })
 export class MatchManagerComponent implements OnInit, OnDestroy {
-  playerXWinsCounter = 0;
-  playerOWinsCounter = 0;
-  playerWinner: Nullable<Player> = null;
+  playerWins = {
+    O: 0,
+    X: 0,
+  };
   isButtonDisabled = true;
+  winnerPlayer: Nullable<WinnerData> = null;
 
-  subscription!: Subscription;
+  selectionsSubscription!: Subscription;
+  winnerSubscription!: Subscription;
 
   constructor(
     protected coreService: CoreService,
@@ -61,20 +64,39 @@ export class MatchManagerComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subscription = this.coreService.selections$.subscribe((selections) => {
-      const isEverySquareEmpty = selections.every(
-        (square) => square.value === null
-      );
-      this.isButtonDisabled = isEverySquareEmpty;
+    this.selectionsSubscription = this.coreService.selections$.subscribe(
+      (selections) => {
+        const isEverySquareEmpty = selections.every(
+          (square) => square.value === null
+        );
+        this.isButtonDisabled = isEverySquareEmpty;
+      }
+    );
+
+    this.winnerSubscription = this.coreService.winner$.subscribe((winner) => {
+      const winnerMark = winner?.player;
+      if (this.winnerPlayer === null && Boolean(winnerMark)) {
+        this.playerWins[winnerMark!]++;
+      }
+
+      this.winnerPlayer = winner;
     });
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.selectionsSubscription.unsubscribe();
+    this.winnerSubscription.unsubscribe();
   }
 
-  checkPlayerTurn(player: Player) {
-    return this.coreService.currentPlayer === player;
+  shouldHighlightPlayer(player: Player): boolean {
+    const isCurrentPlayerTurn = this.coreService.currentPlayer === player;
+    const haveNoWinner = this.winnerPlayer === null;
+    return isCurrentPlayerTurn && haveNoWinner;
+  }
+
+  shouldHighlightScore(): boolean {
+    const haveWinner = this.winnerPlayer !== null;
+    return haveWinner;
   }
 
   startMatch() {

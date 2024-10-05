@@ -1,6 +1,7 @@
 :root {
   @media (prefers-color-scheme: light) {
     --primary: #ed145b;
+    --secondary: #65088C;
     --background: #3a0013;
     --background-darker: #0e0005;
     --background-lighter: #440018;
@@ -10,6 +11,7 @@
 
   @media (prefers-color-scheme: dark) {
     --primary: #ed145b;
+    --secondary: #65088C;
     --background: #3a0013;
     --background-darker: #0e0005;
     --background-lighter: #440018;

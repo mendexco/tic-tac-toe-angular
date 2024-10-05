@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@angular/core';
 import {
   CONSTANTS_TOKEN,
   IConstants,
-  Nullable,
-  Player,
+  type Nullable,
+  type Player,
 } from '@utils/constants';
 import { BehaviorSubject, map } from 'rxjs';
 
@@ -12,6 +12,11 @@ export type SelectionType = 'X' | 'O' | null;
 export type SquareType = {
   index: number;
   value: SelectionType;
+};
+
+export type WinnerData = {
+  combination: number[];
+  player: Player;
 };
 
 const randomizePlayer = (): Player =>
@@ -42,18 +47,20 @@ const WINNING_COMBINATIONS = [
 export class CoreService {
   currentPlayer: Nullable<Player> = randomizePlayer();
 
-  private selections = new BehaviorSubject<SquareType[]>(INITIAL_SELECTIONS);
-  selections$ = this.selections.asObservable();
-  winner$ = this.selections.pipe(map(this.checkVictory));
+  private selectionsSubject = new BehaviorSubject<SquareType[]>(
+    INITIAL_SELECTIONS
+  );
+  selections$ = this.selectionsSubject.asObservable();
+  winner$ = this.selections$.pipe(map((s) => this.checkVictory(s)));
 
   constructor(@Inject(CONSTANTS_TOKEN) private CONSTANTS: IConstants) {}
 
   /**
-   * Switches current player turn if there is no more squares to select, instead set currentPlayer to null. 
+   * Switches current player turn if there is no more squares to select, instead set currentPlayer to null.
    */
-  private switchPlayer(): void {
+  switchPlayer(): void {
     // If all squares are filled, the game is over so it's no one turn
-    const areAllSquaresMarked = this.selections
+    const areAllSquaresMarked = this.selectionsSubject
       .getValue()
       .every((square) => square.value !== null);
     if (areAllSquaresMarked) {
@@ -71,54 +78,52 @@ export class CoreService {
   /**
    * Checks if a player can match any of the winning combinations with your current selections.
    * @param selections - All the squares selected of an specific player.
-   * @example checkVictory([{index: 1, value: 'X'}])
+   * @example checkVictory([{ index: 1, value: 'X' }])
    * @returns The winning player symbol or null
    */
-  checkVictory(selections: SquareType[]): Nullable<Player> {
+  checkVictory(selections: SquareType[]): Nullable<WinnerData> {
     const currentPlayerSelections = selections
       .filter((square) => square.value === this.currentPlayer)
       .map((square) => square.index);
 
     // If there are less than 3 squares selected, than it is impossible for anyone to win
     const noNeedForChecking = currentPlayerSelections.length < 3;
-    if (noNeedForChecking) {
-      this.switchPlayer();
-      return null;
-    }
+    if (noNeedForChecking) return null;
 
     // checks if some of the winning combinations were matched by current player selections
-    const hadCurrentPlayerWon = WINNING_COMBINATIONS.some((combination) =>
+    const winningCombination = WINNING_COMBINATIONS.find((combination) =>
       combination.every((square) => currentPlayerSelections.includes(square))
     );
-    if (hadCurrentPlayerWon) return this.currentPlayer;
+    if (winningCombination) {
+      return {
+        combination: winningCombination,
+        player: this.currentPlayer!,
+      };
+    }
 
-    // if does not matches any combination, switch turns
-    this.switchPlayer();
+    // if does not matches any combination
     return null;
   }
 
   /**
-   * Add selected square to selections array stream, and also checks if the selection won the game.
+   * Add selected square to selections array stream.
    * @param index - Square's index that was selected, within a range of 1 to 9.
    * @example markSquare(1)
    */
   markSquare(index: number): void {
     // search for the square that was clicked and update its value
-    const newSelections = this.selections.getValue().map((square) => {
+    const newSelections = this.selectionsSubject.getValue().map((square) => {
       if (square.index !== index) return square;
       return { ...square, value: this.currentPlayer };
     });
-    this.selections.next(newSelections);
-
-    // check if the current mark won the game
-    this.checkVictory(newSelections);
+    this.selectionsSubject.next(newSelections);
   }
 
   /**
    * Resets current marked squares, and also re-randomizes the next player turn.
    */
   resetSelections(): void {
-    this.selections.next(INITIAL_SELECTIONS);
+    this.selectionsSubject.next(INITIAL_SELECTIONS);
     this.currentPlayer = randomizePlayer();
   }
 }

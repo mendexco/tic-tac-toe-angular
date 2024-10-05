@@ -9,7 +9,8 @@ import { CoreService } from '@services/core/core.service';
   template: `
     @for (square of this.coreServices.selections$ | async; track square.index) {
     <app-square
-      (mark)="this.coreServices.markSquare(square.index)"
+      (mark)="handleSelectSquare($event)"
+      [index]="square.index"
       [value]="square.value"
     />
     }
@@ -19,4 +20,9 @@ import { CoreService } from '@services/core/core.service';
 })
 export class PanelComponent {
   constructor(protected coreServices: CoreService) {}
+
+  handleSelectSquare(squareIndex: number): void {
+    this.coreServices.markSquare(squareIndex);
+    this.coreServices.switchPlayer();
+  }
 }
