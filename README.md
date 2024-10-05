@@ -1,27 +1,42 @@
-# TicTacToeAngular
+# **Tic-Tac-Toe**
+<div align="center">
+<img width="40%" src="public\tic_tac_toe_loader.gif" alt="xo gif">
+</div>
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.5.
+#
 
-## Development server
+View now at **https://mdxco-tic-tac-toe-angular.vercel.app**
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+#
 
-## Code scaffolding
+- This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.5.
+- Implementing some basic concepts
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+#
+> <br />
+>
+> **`Running`**
+>><br />
 
-## Build
+>> 1. You will need to have **Node** and **NPM**
+>> 2. If you have Angular CLI, run at the terminal: `ng serve` or `npm start`
+>> 3. Navigate to `http://localhost:4200/`
+>><br />
+>#
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+<br />
 
-## Running unit tests
+> <p align=center style="font-size: 1.6rem">Technologies</p>
+<img align="right" alt="Ryu-pic" height="200" style="border-radius:50px;" src="public\ryu.png" alt="ryu">
+ <br><br>
+  
+<div align="center" style="display: inline_block;">
+  <img align="center" alt="Vitor-JS" height="90" width="120" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg">
+</div>
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+##
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+<br />  
+<div align="center"> 
+   <a href="https://www.linkedin.com/in/vitor-mendesco/" target="_blank"><img src="https://img.shields.io/badge/-LinkedIn-%230077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank"></a>
+</div>
