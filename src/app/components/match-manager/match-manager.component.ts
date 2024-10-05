@@ -3,6 +3,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CoreService } from '@services/core/core.service';
 import {
   CONSTANTS_TOKEN,
+  Nullable,
   type IConstants,
   type Player,
 } from '@utils/constants';
@@ -49,6 +50,7 @@ import { Subscription } from 'rxjs';
 export class MatchManagerComponent implements OnInit, OnDestroy {
   playerXWinsCounter = 0;
   playerOWinsCounter = 0;
+  playerWinner: Nullable<Player> = null;
   isButtonDisabled = true;
 
   subscription!: Subscription;

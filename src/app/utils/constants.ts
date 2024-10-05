@@ -1,5 +1,8 @@
 import { InjectionToken } from '@angular/core';
 
+export type Nullable<T> = T | null;
+
+
 type SocialMediaType = {
   href: string;
   icon: string;
