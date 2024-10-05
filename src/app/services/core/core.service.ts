@@ -72,9 +72,9 @@ export class CoreService {
 
     // switches current player turn
     this.currentPlayer =
-      this.currentPlayer === this.CONSTANTS.players.X
-        ? this.CONSTANTS.players.O
-        : this.CONSTANTS.players.X;
+      this.currentPlayer === this.CONSTANTS.player.X
+        ? this.CONSTANTS.player.O
+        : this.CONSTANTS.player.X;
   }
 
   /**
