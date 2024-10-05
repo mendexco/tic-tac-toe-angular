@@ -32,6 +32,8 @@ View now at **https://mdxco-tic-tac-toe-angular.vercel.app**
   
 <div align="center" style="display: inline_block;">
   <img align="center" alt="Vitor-JS" height="90" width="120" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg">
+  <img align="center" alt="Vitor-JS" height="90" width="120" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rxjs/rxjs-original.svg">
+  <img align="center" alt="Vitor-JS" height="90" width="120" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg">
 </div>
 
 ##
