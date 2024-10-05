@@ -1,13 +1,18 @@
 import { AsyncPipe, NgClass } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { CoreService, type WinnerData } from '@services/core/core.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { CoreService } from '@services/core/core.service';
 import {
   CONSTANTS_TOKEN,
-  Nullable,
   type IConstants,
   type Player,
 } from '@utils/constants';
-import { Subscription } from 'rxjs';
+import { map, Subscription, tap } from 'rxjs';
 
 @Component({
   selector: 'app-match-manager',
@@ -22,10 +27,10 @@ import { Subscription } from 'rxjs';
         >
           PlayerX
         </p>
-        <p [ngClass]="{ highlighted: shouldHighlightScore() }">
-          <span>{{ playerWins.X }}</span>
+        <p [ngClass]="{ highlighted: gameState.haveWinner }">
+          <span>{{ gameState.playersScores.X }}</span>
           vs
-          <span>{{ playerWins.O }}</span>
+          <span>{{ gameState.playersScores.O }}</span>
         </p>
         <p
           [ngClass]="{
@@ -36,8 +41,8 @@ import { Subscription } from 'rxjs';
         </p>
       </div>
       <button
-        (click)="startMatch()"
-        [ngClass]="{ disabled: this.isButtonDisabled }"
+        [ngClass]="{ disabled: gameState.areAllSquaresEmpty }"
+        (click)="restartMatch()"
         type="button"
       >
         RESTART
@@ -46,61 +51,60 @@ import { Subscription } from 'rxjs';
   `,
   styleUrl: './match-manager.component.scss',
   imports: [NgClass, AsyncPipe],
+  changeDetection: ChangeDetectionStrategy.Default, // using default due to constant turn changing
 })
 export class MatchManagerComponent implements OnInit, OnDestroy {
-  playerWins = {
-    O: 0,
-    X: 0,
+  gameState = {
+    areAllSquaresEmpty: true,
+    haveWinner: false,
+    playersScores: {
+      O: 0,
+      X: 0,
+    },
   };
-  isButtonDisabled = true;
-  winnerPlayer: Nullable<WinnerData> = null;
 
-  selectionsSubscription!: Subscription;
-  winnerSubscription!: Subscription;
+  gameStateSubscription!: Subscription;
 
   constructor(
-    protected coreService: CoreService,
-    @Inject(CONSTANTS_TOKEN) protected CONSTANTS: IConstants
+    @Inject(CONSTANTS_TOKEN) protected CONSTANTS: IConstants,
+    private coreService: CoreService
   ) {}
 
   ngOnInit() {
-    this.selectionsSubscription = this.coreService.selections$.subscribe(
-      (selections) => {
-        const isEverySquareEmpty = selections.every(
-          (square) => square.value === null
-        );
-        this.isButtonDisabled = isEverySquareEmpty;
-      }
-    );
+    this.gameStateSubscription = this.coreService.gameState$
+      .pipe(
+        map(([selections, winner]) => {
+          const areAllSquaresEmpty = selections.every(
+            (square) => square.value === null
+          );
 
-    this.winnerSubscription = this.coreService.winner$.subscribe((winner) => {
-      const winnerMark = winner?.player;
-      if (this.winnerPlayer === null && Boolean(winnerMark)) {
-        this.playerWins[winnerMark!]++;
-      }
+          const haveWinner = Boolean(winner);
 
-      this.winnerPlayer = winner;
-    });
+          const playersScores = this.gameState.playersScores;
+          if (haveWinner) {
+            playersScores[winner!.player]++;
+          }
+
+          return { areAllSquaresEmpty, haveWinner, playersScores };
+        }),
+        tap(({ areAllSquaresEmpty, haveWinner, playersScores }) => {
+          this.gameState = { areAllSquaresEmpty, haveWinner, playersScores };
+        })
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
-    this.selectionsSubscription.unsubscribe();
-    this.winnerSubscription.unsubscribe();
+    this.gameStateSubscription.unsubscribe();
   }
 
   shouldHighlightPlayer(player: Player): boolean {
     const isCurrentPlayerTurn = this.coreService.currentPlayer === player;
-    const haveNoWinner = this.winnerPlayer === null;
-    return isCurrentPlayerTurn && haveNoWinner;
+    return isCurrentPlayerTurn && !this.gameState.haveWinner;
   }
 
-  shouldHighlightScore(): boolean {
-    const haveWinner = this.winnerPlayer !== null;
-    return haveWinner;
-  }
-
-  startMatch() {
-    if (this.isButtonDisabled) return;
+  restartMatch() {
+    if (this.gameState.areAllSquaresEmpty) return;
     this.coreService.resetSelections();
   }
 }

@@ -1,39 +1,37 @@
-@use "../../../styles.scss" as v;
-
 :host {
-  button {
-    align-items: center;
-    aspect-ratio: 1 / 1;
-    background-color: var(--background);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    padding: 0;
-    transition: background-color 0.1s ease-in-out;
-    width: 100%;
+  align-items: center;
+  aspect-ratio: 1 / 1;
+  background-color: var(--background);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.1s ease-in-out;
+  width: 100%;
 
-    &:hover {
-      background-color: var(--background-lighter);
-    }
-    &:active {
-      background-color: var(--background-lighter-click);
-    }
-    &.disabled {
-      background-color: var(--background-lighter);
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-    &.victorious {
-      background-color: var(--secondary);
-    }
+  &:hover {
+    background-color: var(--background-lighter);
+  }
+  &:active {
+    background-color: var(--background-lighter-click);
+  }
+  &.disabled,
+  &.selected {
+    pointer-events: none;
+  }
+  &.disabled {
+    background-color: var(--background-disabled);
+  }
+  &.selected {
+    background-color: var(--background-lighter);
+  }
 
-    p {
-      color: var(--font-color-primary);
-      font-size: 4em;
-      margin: 0;
-      text-align: center;
-      user-select: none;
-    }
+  p {
+    color: var(--font-color-primary);
+    font-size: 4em;
+    margin: 0;
+    text-align: center;
+    user-select: none;
   }
 }

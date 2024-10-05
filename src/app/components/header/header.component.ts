@@ -1,5 +1,5 @@
 import { NgFor } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { CONSTANTS_TOKEN, IConstants } from '@utils/constants';
 
 @Component({
@@ -26,6 +26,7 @@ import { CONSTANTS_TOKEN, IConstants } from '@utils/constants';
   `,
   styleUrl: './header.component.scss',
   imports: [NgFor],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
   constructor(@Inject(CONSTANTS_TOKEN) protected CONSTANTS: IConstants) {}

@@ -5,7 +5,7 @@ import {
   type Nullable,
   type Player,
 } from '@utils/constants';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 
 export type SelectionType = 'X' | 'O' | null;
 
@@ -51,7 +51,9 @@ export class CoreService {
     INITIAL_SELECTIONS
   );
   selections$ = this.selectionsSubject.asObservable();
-  winner$ = this.selections$.pipe(map((s) => this.checkVictory(s)));
+  private winnerSubject = new BehaviorSubject<Nullable<WinnerData>>(null);
+  winner$ = this.winnerSubject.asObservable();
+  gameState$ = combineLatest([this.selections$, this.winner$]);
 
   constructor(@Inject(CONSTANTS_TOKEN) private CONSTANTS: IConstants) {}
 
@@ -77,32 +79,31 @@ export class CoreService {
 
   /**
    * Checks if a player can match any of the winning combinations with your current selections.
-   * @param selections - All the squares selected of an specific player.
-   * @example checkVictory([{ index: 1, value: 'X' }])
-   * @returns The winning player symbol or null
    */
-  checkVictory(selections: SquareType[]): Nullable<WinnerData> {
-    const currentPlayerSelections = selections
+  checkVictory(): void {
+    const currentPlayerSelections = this.selectionsSubject
+      .getValue()
       .filter((square) => square.value === this.currentPlayer)
       .map((square) => square.index);
 
     // If there are less than 3 squares selected, than it is impossible for anyone to win
     const noNeedForChecking = currentPlayerSelections.length < 3;
-    if (noNeedForChecking) return null;
+    if (noNeedForChecking) return;
 
     // checks if some of the winning combinations were matched by current player selections
     const winningCombination = WINNING_COMBINATIONS.find((combination) =>
       combination.every((square) => currentPlayerSelections.includes(square))
     );
     if (winningCombination) {
-      return {
+      const newWinner = {
         combination: winningCombination,
         player: this.currentPlayer!,
       };
+      this.winnerSubject.next(newWinner);
     }
 
     // if does not matches any combination
-    return null;
+    return;
   }
 
   /**
@@ -123,6 +124,7 @@ export class CoreService {
    * Resets current marked squares, and also re-randomizes the next player turn.
    */
   resetSelections(): void {
+    this.winnerSubject.next(null);
     this.selectionsSubject.next(INITIAL_SELECTIONS);
     this.currentPlayer = randomizePlayer();
   }
