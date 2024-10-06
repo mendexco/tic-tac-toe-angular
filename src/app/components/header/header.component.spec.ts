@@ -22,6 +22,6 @@ describe('HeaderComponent', () => {
 
   it(`should have title 'TIC-TAC-TOE'`, () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('p')?.textContent).toContain('TIC-TAC-TOE');
+    expect(compiled.querySelector('h1')?.textContent).toContain('TIC-TAC-TOE');
   });
 });
