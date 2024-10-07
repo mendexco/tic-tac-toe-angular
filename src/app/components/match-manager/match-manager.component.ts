@@ -3,9 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   Inject,
-  OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AddClassPipe } from '@pipes/addClass.pipe';
 import { HighlightPipe } from '@pipes/highlight.pipe';
 import { CoreService } from '@services/core/core.service';
@@ -14,7 +15,8 @@ import {
   type IConstants,
   type Player,
 } from '@utils/constants';
-import { map, Subscription, tap } from 'rxjs';
+import { Destroyable } from '@utils/Destroyable';
+import { map, tap } from 'rxjs';
 
 @Component({
   selector: 'app-match-manager',
@@ -27,10 +29,10 @@ import { map, Subscription, tap } from 'rxjs';
         >
           PlayerX
         </p>
-        <p [ngClass]="gameState.haveWinner | highlight">
-          <span>{{ gameState.playerScore.X }}</span>
+        <p [ngClass]="gameState().haveWinner | highlight">
+          <span>{{ gameState().playerScore.X }}</span>
           vs
-          <span>{{ gameState.playerScore.O }}</span>
+          <span>{{ gameState().playerScore.O }}</span>
         </p>
         <p
           [ngClass]="shouldHighlightPlayer(this.CONSTANTS.player.O) | highlight"
@@ -39,7 +41,7 @@ import { map, Subscription, tap } from 'rxjs';
         </p>
       </div>
       <button
-        [ngClass]="gameState.areAllSquaresEmpty | addClass : 'disabled'"
+        [ngClass]="gameState().areAllSquaresEmpty | addClass : 'disabled'"
         (click)="restartMatch()"
         type="button"
       >
@@ -51,26 +53,27 @@ import { map, Subscription, tap } from 'rxjs';
   imports: [NgClass, AsyncPipe, AddClassPipe, HighlightPipe],
   changeDetection: ChangeDetectionStrategy.Default, // using default due to constant turn changing
 })
-export class MatchManagerComponent implements OnInit, OnDestroy {
-  gameState = {
+export class MatchManagerComponent extends Destroyable implements OnInit {
+  protected gameState = signal({
     areAllSquaresEmpty: true,
     haveWinner: false,
     playerScore: {
       O: 0,
       X: 0,
     },
-  };
+  });
 
   constructor(
     @Inject(CONSTANTS_TOKEN) protected CONSTANTS: IConstants,
     private coreService: CoreService
-  ) {}
-
-  gameStateSubscription!: Subscription;
+  ) {
+    super();
+  }
 
   ngOnInit() {
-    this.gameStateSubscription = this.coreService.gameState$
+    this.coreService.gameState$
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         map(([selections, winner]) => {
           const areAllSquaresEmpty = selections.every(
             (square) => square.value === null
@@ -78,7 +81,7 @@ export class MatchManagerComponent implements OnInit, OnDestroy {
 
           const haveWinner = Boolean(winner);
 
-          const playerScore = this.gameState.playerScore;
+          const playerScore = this.gameState().playerScore;
           if (haveWinner) {
             playerScore[winner!.player]++;
           }
@@ -86,23 +89,19 @@ export class MatchManagerComponent implements OnInit, OnDestroy {
           return { areAllSquaresEmpty, haveWinner, playerScore };
         }),
         tap(({ areAllSquaresEmpty, haveWinner, playerScore }) => {
-          this.gameState = { areAllSquaresEmpty, haveWinner, playerScore };
+          this.gameState.set({ areAllSquaresEmpty, haveWinner, playerScore });
         })
       )
       .subscribe();
   }
 
-  ngOnDestroy() {
-    this.gameStateSubscription.unsubscribe();
-  }
-
   shouldHighlightPlayer(player: Player): boolean {
-    const isCurrentPlayerTurn = this.coreService.currentPlayer === player;
-    return isCurrentPlayerTurn && !this.gameState.haveWinner;
+    const isCurrentPlayerTurn = this.coreService.currentPlayer() === player;
+    return isCurrentPlayerTurn && !this.gameState().haveWinner;
   }
 
   restartMatch() {
-    if (this.gameState.areAllSquaresEmpty) return;
+    if (this.gameState().areAllSquaresEmpty) return;
     this.coreService.resetSelections();
   }
 }

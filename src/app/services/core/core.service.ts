@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
 import {
   CONSTANTS_TOKEN,
   IConstants,
@@ -45,7 +45,7 @@ const WINNING_COMBINATIONS = [
   providedIn: 'root',
 })
 export class CoreService {
-  currentPlayer: Nullable<Player> = randomizePlayer();
+  currentPlayer = signal<Nullable<Player>>(randomizePlayer());
 
   private selectionsSubject = new BehaviorSubject<SquareType[]>(
     INITIAL_SELECTIONS
@@ -66,15 +66,16 @@ export class CoreService {
       .getValue()
       .every((square) => square.value !== null);
     if (areAllSquaresMarked) {
-      this.currentPlayer = null;
+      this.currentPlayer.set(null);
       return;
     }
 
     // switches current player turn
-    this.currentPlayer =
-      this.currentPlayer === this.CONSTANTS.player.X
+    this.currentPlayer.set(
+      this.currentPlayer() === this.CONSTANTS.player.X
         ? this.CONSTANTS.player.O
-        : this.CONSTANTS.player.X;
+        : this.CONSTANTS.player.X
+    );
   }
 
   /**
@@ -83,7 +84,7 @@ export class CoreService {
   checkVictory(): void {
     const currentPlayerSelections = this.selectionsSubject
       .getValue()
-      .filter((square) => square.value === this.currentPlayer)
+      .filter((square) => square.value === this.currentPlayer())
       .map((square) => square.index);
 
     // If there are less than 3 squares selected, than it is impossible for anyone to win
@@ -97,7 +98,7 @@ export class CoreService {
     if (winningCombination) {
       const newWinner = {
         combination: winningCombination,
-        player: this.currentPlayer!,
+        player: this.currentPlayer()!,
       };
       this.winnerSubject.next(newWinner);
     }
@@ -115,7 +116,7 @@ export class CoreService {
     // search for the square that was clicked and update its value
     const newSelections = this.selectionsSubject.getValue().map((square) => {
       if (square.index !== index) return square;
-      return { ...square, value: this.currentPlayer };
+      return { ...square, value: this.currentPlayer() };
     });
     this.selectionsSubject.next(newSelections);
   }
@@ -126,6 +127,6 @@ export class CoreService {
   resetSelections(): void {
     this.winnerSubject.next(null);
     this.selectionsSubject.next(INITIAL_SELECTIONS);
-    this.currentPlayer = randomizePlayer();
+    this.currentPlayer.set(randomizePlayer());
   }
 }

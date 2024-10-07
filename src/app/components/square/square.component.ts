@@ -2,11 +2,10 @@ import { AsyncPipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   HostBinding,
   HostListener,
   input,
-  Output,
+  output
 } from '@angular/core';
 import { type SelectionType } from '@services/core/core.service';
 
@@ -20,12 +19,12 @@ import { type SelectionType } from '@services/core/core.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SquareComponent {
-  disabled = input<boolean>(false);
-  selected = input<boolean>(false);
-  index = input<number>(0);
-  value = input<SelectionType>(null);
+  public disabled = input<boolean>(false);
+  public selected = input<boolean>(false);
+  public index = input<number>(0);
+  public value = input<SelectionType>(null);
 
-  @Output() mark = new EventEmitter<number>();
+  public mark = output<number>();
 
   @HostBinding('class')
   get classes(): Record<string, boolean> {
